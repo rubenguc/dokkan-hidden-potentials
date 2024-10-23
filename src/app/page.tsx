@@ -1,101 +1,135 @@
-import Image from "next/image";
+import Message from "@/components/Message";
+import { connectToDatabase } from "@/lib/database";
+import Character from "@/lib/model";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+const getbase = (type: string) => {
+  const base = {
+    AGL: '00',
+    TEQ: '01',
+    INT: '02',
+    STR: '03',
+    PHY: '04'
+  }
+
+  return `https://glben.dokkaninfo.com/assets/global/en/layout/en/image/character/character_thumb_bg/cha_base_${base[type]}_04.png`;
+};
+
+const getIcon = (id: string) => {
+  return `https://glben.dokkaninfo.com/assets/global/en/character/thumb/card_${Number(id) - 1
+    }_thumb.png`;
+};
+
+const HiddenStat = ({
+  stat,
+  value,
+}: {
+  stat: "add" | "crit" | "eva";
+  value: number;
+}) => {
+  const stats = {
+    add: "/assets/add.webp",
+    crit: "/assets/crit.webp",
+    eva: "/assets/eva.webp",
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="flex flex-col items-center">
+      <img src={stats[stat]} width={40} height={20} />
+      <span className="text-2xl font-bold">{value}</span>
+    </div>
+  );
+};
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+export default async function Home({ searchParams }) {
+  const { page: searchPage, name } = await searchParams;
+
+  const page = parseInt(searchPage) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const searchQuery = name || "";
+
+  await connectToDatabase();
+
+  const query = searchQuery
+    ? { name: { $regex: searchQuery, $options: "i" } }
+    : {};
+
+  const characters = await Character.find(query).skip(skip).limit(limit);
+
+  const totalCharacters = await Character.countDocuments(query);
+  const totalPages = Math.ceil(totalCharacters / limit);
+
+
+  return (
+    <div className="w-full">
+      <h1 className="text-center mt-10 font-bold text-4xl">{`Playmaker's Hidden potential`}</h1>
+
+      <div className="max-w-5xl w-full mx-auto rounded bg-gray-600 p-10 md:p-20">
+        <form className="mx-auto w-fit flex gap-2" method="get" action="/">
+          <input
+            className="rounded border p-1 text-black"
+            type="text"
+            name="name"
+            placeholder="Search by name"
+            defaultValue={searchQuery}
+          />
+          <button className="bg-green-600 p-2 rounded font-bold" type="submit">
+            Search
+          </button>
+        </form>
+
+        {/* Mostrar resultados */}
+
+        <div className="flex flex-col w-fit mx-auto mt-10 gap-5">
+          {characters.map((character, index) => (
+            <div
+              key={character.id}
+              className={`flex flex-col md:flex-row md:gap-5 max-w-xl ${index > 0 ? "border-t border-t-gray-500/90" : ""}`}
+            >
+              <div className="relative h-44 w-44 md:flex-1/2 mx-auto md:mx-0">
+                <img
+                  className="absolute top-0 left-0 scale-[.80] w-full"
+                  src={getbase(character.category)}
+                />
+                <img
+                  className="absolute -top-[3.5px] left-0 w-full"
+                  src={getIcon(character.id)}
+                />
+              </div>
+              <div className="flex flex-col gap-3 py-4 flex-1 items-center md:justify-start">
+                <span className="text-xl text-center">{character.name}</span>
+                <div className="flex items-center gap-2">
+                  {character.hidden?.add > 0 && (
+                    <HiddenStat stat="add" value={character.hidden.add} />
+                  )}
+                  {character.hidden?.crit > 0 && (
+                    <HiddenStat stat="crit" value={character.hidden.crit} />
+                  )}
+                  {character.hidden?.eva > 0 && (
+                    <HiddenStat stat="eva" value={character.hidden.eva} />
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <Message />
+
+      {/* <div>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <a
+            key={i}
+            href={`/?page=${i + 1}&name=${searchQuery}`} // Incluir la búsqueda en los enlaces de paginación
+          >
+            {i + 1}
+          </a>
+        ))}
+      </div> */}
     </div>
   );
 }
