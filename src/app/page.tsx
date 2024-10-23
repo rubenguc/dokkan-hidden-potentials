@@ -1,25 +1,41 @@
+import CharactCard from "@/components/CharacterCard";
 import Message from "@/components/Message";
+import { CATEGORY, CLASS, RARITY } from "@/contants";
 import { connectToDatabase } from "@/lib/database";
 import Character from "@/lib/model";
+import { Field, Label, Select } from "@headlessui/react";
 
 export const dynamic = "force-dynamic";
 
-const getbase = (type: string) => {
-  const base = {
-    AGL: '00',
-    TEQ: '01',
-    INT: '02',
-    STR: '03',
-    PHY: '04'
-  }
+export async function fetchCharacters({
+  page = 1,
+  name,
+  rarity,
+  characterClass,
+  category,
+}) {
+  const limit = 10;
+  const skip = (page - 1) * limit;
 
-  return `https://glben.dokkaninfo.com/assets/global/en/layout/en/image/character/character_thumb_bg/cha_base_${base[type]}_04.png`;
-};
+  await connectToDatabase();
 
-const getIcon = (id: string) => {
-  return `https://glben.dokkaninfo.com/assets/global/en/character/thumb/card_${Number(id) - 1
-    }_thumb.png`;
-};
+  // Crear el query dinámico
+  const query = {
+    ...(name && { name: { $regex: name, $options: "i" } }),
+    ...(rarity && { rarity }),
+    ...(characterClass && { class: characterClass }),
+    ...(category && { category }),
+  };
+
+  // Obtener los personajes
+  const characters = await Character.find(query).skip(skip).limit(limit);
+
+  // Calcular el número total de personajes y páginas
+  const totalCharacters = await Character.countDocuments(query);
+  const totalPages = Math.ceil(totalCharacters / limit);
+
+  return { characters, totalCharacters, totalPages };
+}
 
 const HiddenStat = ({
   stat,
@@ -43,42 +59,102 @@ const HiddenStat = ({
 };
 
 export default async function Home({ searchParams }) {
-  const { page: searchPage, name } = await searchParams;
+  const {
+    page: searchPage,
+    name,
+    rarity,
+    class: characterClass,
+    category,
+  } = await searchParams;
 
   const page = parseInt(searchPage) || 1;
-  const limit = 10;
-  const skip = (page - 1) * limit;
 
   const searchQuery = name || "";
 
-  await connectToDatabase();
-
-  const query = searchQuery
-    ? { name: { $regex: searchQuery, $options: "i" } }
-    : {};
-
-  const characters = await Character.find(query).skip(skip).limit(limit);
-
-  const totalCharacters = await Character.countDocuments(query);
-  const totalPages = Math.ceil(totalCharacters / limit);
-
+  // Llamar a la función que maneja la lógica de búsqueda
+  const { characters, totalCharacters, totalPages } = await fetchCharacters({
+    page,
+    name,
+    rarity,
+    characterClass,
+    category,
+  });
 
   return (
     <div className="w-full">
       <h1 className="text-center mt-10 font-bold text-4xl">{`Playmaker's Hidden potential`}</h1>
 
-      <div className="max-w-5xl w-full mx-auto rounded bg-gray-600 p-10 md:p-20">
-        <form className="mx-auto w-fit flex gap-2" method="get" action="/">
-          <input
-            className="rounded border p-1 text-black"
-            type="text"
-            name="name"
-            placeholder="Search by name"
-            defaultValue={searchQuery}
-          />
-          <button className="bg-green-600 p-2 rounded font-bold" type="submit">
-            Search
-          </button>
+      <div className="max-w-5xl w-full mx-auto rounded bg-gray-600 p-10 md:p-14">
+        <form
+          className="mx-auto w-fit flex flex-col  gap-4 items-center"
+          method="get"
+          action="/"
+        >
+          <div className="flex gap-3">
+            <Field>
+              <Label className="capitalize">class</Label>
+              <Select
+                name="class"
+                defaultValue={characterClass}
+                className="py-3 px-4 block w-full rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none bg-neutral-900 border border-neutral-500"
+              >
+                <option value={""}>ALL</option>
+                {Object.keys(CLASS).map((className) => (
+                  <option key={className} value={className}>
+                    {className}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            <Field>
+              <Label className="capitalize">category</Label>
+              <Select
+                defaultValue={category}
+                name="category"
+                className="py-3 px-4 block w-full rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none bg-neutral-900 border border-neutral-500"
+              >
+                <option value={""}>ALL</option>
+                {Object.keys(CATEGORY).map((categoryName) => (
+                  <option key={categoryName} value={categoryName}>
+                    {categoryName}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            <Field>
+              <Label className="capitalize">rarity</Label>
+              <Select
+                defaultValue={rarity}
+                name="rarity"
+                className="py-3 px-4 block w-full rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none bg-neutral-900 border border-neutral-500"
+              >
+                <option value={""}>ALL</option>
+                {Object.keys(RARITY).map((rarityName) => (
+                  <option key={rarityName} value={rarityName}>
+                    {rarityName}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          </div>
+
+          <div className="flex gap-2">
+            <input
+              className="rounded border p-1 text-black"
+              type="text"
+              name="name"
+              placeholder="Search by name"
+              defaultValue={searchQuery}
+            />
+            <button
+              className="bg-green-600 p-2 rounded font-bol h-fit"
+              type="submit"
+            >
+              Search
+            </button>
+          </div>
         </form>
 
         {/* Mostrar resultados */}
@@ -87,31 +163,37 @@ export default async function Home({ searchParams }) {
           {characters.map((character, index) => (
             <div
               key={character.id}
-              className={`flex flex-col md:flex-row md:gap-5 max-w-xl ${index > 0 ? "border-t border-t-gray-500/90" : ""}`}
+              className={`flex flex-col md:flex-row md:gap-5 max-w-xl ${index > 0 ? "border-t border-t-gray-500/90" : ""
+                }`}
             >
-              <div className="relative h-44 w-44 md:flex-1/2 mx-auto md:mx-0">
-                <img
-                  className="absolute top-0 left-0 scale-[.80] w-full"
-                  src={getbase(character.category)}
-                />
-                <img
-                  className="absolute -top-[3.5px] left-0 w-full"
-                  src={getIcon(character.id)}
-                />
-              </div>
+              <CharactCard
+                {...character}
+                id={character.id}
+                category={character.category}
+                containerClassName="relative h-44 w-44 md:flex-1/2 mx-auto md:mx-0"
+              />
+
               <div className="flex flex-col gap-3 py-4 flex-1 items-center md:justify-start">
-                <span className="text-xl text-center">{character.name}</span>
-                <div className="flex items-center gap-2">
-                  {character.hidden?.add > 0 && (
-                    <HiddenStat stat="add" value={character.hidden.add} />
-                  )}
-                  {character.hidden?.crit > 0 && (
-                    <HiddenStat stat="crit" value={character.hidden.crit} />
-                  )}
-                  {character.hidden?.eva > 0 && (
-                    <HiddenStat stat="eva" value={character.hidden.eva} />
-                  )}
+                <div className="flex flex-col">
+                  <span className="text text-center text-neutral-300">
+                    {character.title}
+                  </span>
+                  <span className="text-xl text-center">{character.name}</span>
+
                 </div>
+                {character.hiddens.map((hidden, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    {hidden?.additional > 0 && (
+                      <HiddenStat stat="add" value={hidden.additional} />
+                    )}
+                    {hidden?.critical > 0 && (
+                      <HiddenStat stat="crit" value={hidden.critical} />
+                    )}
+                    {hidden?.evasion > 0 && (
+                      <HiddenStat stat="eva" value={hidden.evasion} />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -120,16 +202,19 @@ export default async function Home({ searchParams }) {
 
       <Message />
 
-      {/* <div>
-        {Array.from({ length: totalPages }, (_, i) => (
+      <div className="flex justify-center mt-10 gap-2">
+        {Array.from({ length: totalPages }, (_, index) => (
           <a
-            key={i}
-            href={`/?page=${i + 1}&name=${searchQuery}`} // Incluir la búsqueda en los enlaces de paginación
+            key={index}
+            href={`/?page=${index + 1}&name=${name || ""}&rarity=${rarity || ""
+              }&class=${characterClass || ""}&category=${category || ""}`}
+            className={`p-2 rounded ${page === index + 1 ? "bg-blue-500" : "bg-gray-500"
+              }`}
           >
-            {i + 1}
+            {index + 1}
           </a>
         ))}
-      </div> */}
+      </div>
     </div>
   );
 }

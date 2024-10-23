@@ -9,6 +9,9 @@ const CharacterSchema = new mongoose.Schema({
   name: {
     type: String,
   },
+  title: {
+    type: String,
+  },
   rarity: {
     type: String,
     enum: ["UR", "LR"],
@@ -21,21 +24,41 @@ const CharacterSchema = new mongoose.Schema({
     type: String,
     enum: ["AGL", "TEQ", "INT", "STR", "PHY"],
   },
-  hidden: {
-    add: {
-      type: Number,
-      default: 0, // Valor por defecto si no se especifica
+  hiddens: [
+    {
+      offensive: {
+        type: Boolean,
+        default: false,
+      },
+      defensive: {
+        type: Boolean,
+        default: false,
+      },
+      support: {
+        type: Boolean,
+        default: false,
+      },
+      additional: {
+        type: Number,
+        default: 0,
+      },
+      critical: {
+        type: Number,
+        default: 0,
+      },
+      evasion: {
+        type: Number,
+        default: 0,
+      },
     },
-    crit: {
-      type: Number,
-      default: 0, // Valor por defecto si no se especifica
-    },
-    eva: {
-      type: Number,
-      default: 0, // Valor por defecto si no se especifica
-    },
-  },
+  ],
 });
+
+CharacterSchema.index({ rarity: 1 });
+CharacterSchema.index({ class: 1 });
+CharacterSchema.index({ category: 1 });
+CharacterSchema.index({ id: 1 }); // ASC
+CharacterSchema.index({ id: -1 }); // DESC
 
 const Character =
   mongoose.models.Character || mongoose.model("Character", CharacterSchema);
