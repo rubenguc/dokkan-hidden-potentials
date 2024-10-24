@@ -1,4 +1,5 @@
 export enum RARITY {
+  SSR = "SSR",
   UR = "UR",
   LR = "LR",
 }

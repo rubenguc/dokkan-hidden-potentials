@@ -14,7 +14,7 @@ const CharacterSchema = new mongoose.Schema({
   },
   rarity: {
     type: String,
-    enum: ["UR", "LR"],
+    enum: ["SSR", "UR", "LR"],
   },
   class: {
     type: String,

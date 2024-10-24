@@ -57,3 +57,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Error post" }, { status: 500 });
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    await connectToDatabase();
+
+    const body = await req.json();
+
+    const result = await Character.findOneAndUpdate(
+      {
+        id: body.id,
+      },
+      {
+        $set: body,
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return NextResponse.json({ message: "not found" }, { status: 500 });
+    }
+
+    return NextResponse.json(
+      {},
+      {
+        status: 201,
+      }
+    );
+  } catch (error) {
+    console.log({ error });
+    return NextResponse.json({ message: "Error post" }, { status: 500 });
+  }
+}

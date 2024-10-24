@@ -41,7 +41,7 @@ export default function CharacterForm({ values }: CharacterFormProps) {
     watch,
     formState: { errors },
   } = useForm<Character>({
-    defaultValues: values || DEFAULT_CHARACTER,
+    defaultValues: Object.keys(values || {}).length > 0 ? values : DEFAULT_CHARACTER,
   });
 
   const isCreation = !values?.id
@@ -54,9 +54,9 @@ export default function CharacterForm({ values }: CharacterFormProps) {
       let promise = null;
 
       if (isCreation) {
-
         promise = axios.post("/api/characters", data)
-
+      } else {
+        promise = axios.put("/api/characters", data)
       }
 
 

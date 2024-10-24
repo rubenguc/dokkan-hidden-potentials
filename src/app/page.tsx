@@ -28,7 +28,9 @@ export async function fetchCharacters({
   };
 
   // Obtener los personajes
-  const characters = await Character.find(query).skip(skip).limit(limit);
+  const characters = await Character.find(query).sort({
+    id: "desc"
+  }).skip(skip).limit(limit);
 
   // Calcular el número total de personajes y páginas
   const totalCharacters = await Character.countDocuments(query);
@@ -52,7 +54,7 @@ const HiddenStat = ({
 
   return (
     <div className="flex flex-col items-center">
-      <img src={stats[stat]} width={40} height={20} />
+      <img src={stats[stat]} width={40} height={40} />
       <span className="text-2xl font-bold">{value}</span>
     </div>
   );
@@ -159,17 +161,16 @@ export default async function Home({ searchParams }) {
 
         {/* Mostrar resultados */}
 
-        <div className="flex flex-col w-fit mx-auto mt-10 gap-5">
-          {characters.map((character, index) => (
+        <div className="grid lg:grid-cols-2 w-fit mx-auto mt-10 gap-5">
+          {characters.map((character) => (
             <div
               key={character.id}
-              className={`flex flex-col md:flex-row md:gap-5 max-w-xl ${index > 0 ? "border-t border-t-gray-500/90" : ""
-                }`}
+              className="flex flex-col md:flex-row md:gap-5 max-w-xl border border-neutral-500/50 rounded-xl"
             >
               <CharactCard
-                {...character}
                 id={character.id}
                 category={character.category}
+                rarity={character.rarity}
                 containerClassName="relative h-44 w-44 md:flex-1/2 mx-auto md:mx-0"
               />
 
@@ -215,6 +216,6 @@ export default async function Home({ searchParams }) {
           </a>
         ))}
       </div>
-    </div>
+    </div >
   );
 }
