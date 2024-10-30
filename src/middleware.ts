@@ -1,4 +1,3 @@
-// middleware.js
 import { NextRequest, NextResponse } from "next/server";
 
 export default function middleware(req: NextRequest) {
@@ -7,6 +6,6 @@ export default function middleware(req: NextRequest) {
     (req.nextUrl.pathname.startsWith("/api") ||
       req.nextUrl.pathname.startsWith("/admin"))
   ) {
-    return NextResponse.rewrite(new URL("/404", req.url)); // Redirige a la página 404
+    return NextResponse.rewrite(new URL("/404", req.url));
   }
 }
