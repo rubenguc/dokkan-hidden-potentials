@@ -12,6 +12,7 @@ import CharacterCard from "./CharacterCard";
 
 interface CharacterFormProps {
   values?: Character;
+  onFinish: () => void
 }
 
 const DEFAULT_CHARACTER: Character = {
@@ -33,7 +34,7 @@ const DEFAULT_CHARACTER: Character = {
   ],
 };
 
-export default function CharacterForm({ values }: CharacterFormProps) {
+export default function CharacterForm({ values, onFinish }: CharacterFormProps) {
   const {
     register,
     control,
@@ -49,8 +50,6 @@ export default function CharacterForm({ values }: CharacterFormProps) {
   const onSubmit = async (data: Character) => {
 
     try {
-      console.log("subiendo:", data)
-
       let promise = null;
 
       if (isCreation) {
@@ -66,6 +65,7 @@ export default function CharacterForm({ values }: CharacterFormProps) {
         error: "error del serivdor"
       })
 
+      onFinish()
     } catch (error) {
       console.log("error: ", error)
       toast.error("error")

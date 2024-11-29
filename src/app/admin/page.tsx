@@ -221,7 +221,7 @@ export default function Admin() {
                 Create
               </DialogTitle>
 
-              <CharacterForm values={selectedCharacter} />
+              <CharacterForm values={selectedCharacter} onFinish={onClose} />
             </DialogPanel>
           </div>
         </div>
