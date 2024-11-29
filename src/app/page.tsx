@@ -82,8 +82,9 @@ export default async function Home({ searchParams }) {
     category,
   });
 
+
   return (
-    <div className="w-full">
+    <div className="w-full pb-12">
       <h1 className="text-center mt-10 font-bold text-4xl">{`Playmaker's Hidden potential`}</h1>
 
       <div className="max-w-5xl w-full mx-auto rounded bg-gray-600 p-10 md:p-14">
@@ -171,6 +172,7 @@ export default async function Home({ searchParams }) {
                 id={character.id}
                 category={character.category}
                 rarity={character.rarity}
+                class={character.class}
                 containerClassName="relative h-44 w-44 md:flex-1/2 mx-auto md:mx-0"
               />
 
