@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import CreateNew from "./components/CreateNew";
 import {
   ColumnDef,
   flexRender,
@@ -13,12 +12,26 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Character } from "@/interfaces";
-import CharacterCard from "@/components/CharacterCard";
-import { BsFillTrashFill } from "react-icons/bs";
-import { BsPencil } from "react-icons/bs";
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import CharacterCard from "@/components/shared/CharacterCard";
 import { useToggle } from "react-use";
-import CharacterForm from "@/components/CharacterForm";
+import CharacterForm from "@/app/admin/components/CharacterForm";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Pencil } from "lucide-react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const fetchCharacters = async ({
   pagination,
@@ -40,10 +53,9 @@ export default function Admin() {
   });
   const [nameFilter, setNameFilter] = useState("");
 
-
   const [isOpen, toggle] = useToggle(false);
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data } = useQuery({
     queryKey: ["characters", pagination, nameFilter],
     queryFn: () =>
       fetchCharacters({
@@ -52,7 +64,7 @@ export default function Admin() {
       }),
   });
 
-  const [selectedCharacter, setSelectedCharacter] = useState({})
+  const [selectedCharacter, setSelectedCharacter] = useState({});
 
   const columns = useMemo<ColumnDef<Partial<Character>>[]>(
     () => [
@@ -60,21 +72,33 @@ export default function Admin() {
         accessorKey: "id",
       },
       {
-        accessorKey: "Icon",
+        accessorKey: "Card",
         cell: (info) => (
           <>
             <CharacterCard
-              containerClassName="relative h-20 w-20 mx-auto md:mx-0"
+              containerClassName="relative h-32 w-32 md:flex-1/2 mx-auto md:mx-0"
               {...(info.row.original as Character)}
+              id={info.row.original.id}
             />
           </>
         ),
       },
       {
         accessorKey: "name",
+        cell: (info) => (
+          <div className="flex flex-col">
+            <span className="text-gray-400">{info.row.original.title}</span>
+            <span>{info.row.original.name}</span>
+          </div>
+        ),
       },
       {
-        accessorKey: "title",
+        id: "actions",
+        accessorKey: "Actions",
+        cell: ({ row }) => {
+          const character = row.original;
+          return <Pencil onClick={() => onOpenToEdit(character)} />;
+        },
       },
     ],
     []
@@ -96,135 +120,111 @@ export default function Admin() {
   const onClose = () => {
     toggle();
     setSelectedCharacter({});
-  }
-
-  const onOpenToCreate = () => {
-    toggle();
-  }
+  };
 
   const onOpenToEdit = (character: Character) => {
     setSelectedCharacter(character);
-    toggle()
-  }
+    toggle();
+  };
 
   return (
     <div className="max-w-6xl px-2 py-20 mx-auto">
-      <Button
-        onClick={toggle}
-        className="rounded-md bg-black/20 py-2 px-4 text-sm font-medium text-white focus:outline-none data-[hover]:bg-black/30 data-[focus]:outline-1 data-[focus]:outline-white"
-      >
-        Open dialog
-      </Button>
-      <div className="overflow-hidden border rounded border-neutral-500">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <th
-                      className="px-6 py-3 text-start text-xs font-medium text-gray-200 uppercase d"
-                      key={header.id}
-                      colSpan={header.colSpan}
-                    >
-                      {header.isPlaceholder ? null : (
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      )}
-                    </th>
-                  );
-                })}
-                <th className="px-6 py-3 text-start text-xs font-medium text-gray-200 uppercase d">
-                  <div>Actions</div>
-                </th>
-              </tr>
-            ))}
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-neutral-700">
-            {table.getRowModel().rows.map((row) => {
-              return (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => {
-                    return (
-                      <td
-                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200"
-                        key={cell.id}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    );
-                  })}
-                  <td>
-                    <div className="flex items-center gap-2">
-                      <Button onClick={() => onOpenToEdit(row.original)}>
-
-                        <BsPencil />
-                      </Button>
-                      <BsFillTrashFill />
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <div className="flex items-center gap-2">
-          <Button
-            className="border rounded p-1"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {"<"}
-          </Button>
-          <Button
-            className="border rounded p-1"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {">"}
-          </Button>
-
-          <span className="flex items-center gap-1">
-            <div>Page</div>
-            <strong>
-              {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount().toLocaleString()}
-            </strong>
-          </span>
-        </div>
+      <div className="flex justify-end mb-10">
+        <Button onClick={toggle}>New</Button>
       </div>
 
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 mt-10">
+        <Button
+          variant="outline" size="icon"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {"<"}
+        </Button>
+
+        <Button
+          variant="outline" size="icon"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          {">"}
+        </Button>
+
+        <span className="flex items-center gap-1">
+          <div>Page</div>
+          <strong>
+            {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount().toLocaleString()}
+          </strong>
+        </span>
+      </div>
 
       <Dialog
         open={isOpen}
         as="div"
         className="relative z-10 focus:outline-none"
-        onClose={onClose}
+        onOpenChange={onClose}
       >
-        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <DialogPanel
-              transition
-              className="w-full max-w-md rounded-xl bg-white/5 p-6 backdrop-blur-2xl duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0"
-            >
-              <DialogTitle
-                as="h3"
-                className="text-base/7 font-medium text-white"
-              >
-                Create
-              </DialogTitle>
-
-              <CharacterForm values={selectedCharacter} onFinish={onClose} />
-            </DialogPanel>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>hola</DialogTitle>
+          </DialogHeader>
+          <div>
+            <CharacterForm values={selectedCharacter} onFinish={onClose} />
           </div>
-        </div>
+          <DialogFooter></DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );
