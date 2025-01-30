@@ -1,5 +1,10 @@
+import { CATEGORY, CLASS } from "@/contants";
+import { Character as ICharacter } from "@/interfaces";
+import { getCardImage, getCardInfo } from "@/lib/api";
 import { connectToDatabase } from "@/lib/database";
+import { getClassAndCategory, getRarity, RARITY } from "@/lib/hidden-utils";
 import Character from "@/lib/model";
+import { uploadImage } from "@/lib/storage";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -18,6 +23,7 @@ export async function GET(req: Request) {
 
   try {
     const characters = await Character.find(query)
+      .sort({ last_awakening: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -43,17 +49,53 @@ export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
 
-    const body = await req.json();
+    const { id, hiddens, orbs } = await req.json();
 
-    const character = new Character(body);
+    const character = await getCardInfo(id);
 
-    await character.save();
+    const lastAwaken =
+      character.optimal_awakening_growths?.pop?.()?.open_at ||
+      character.card.open_at;
 
-    return NextResponse.json(character, {
+    const { class: cclass, category } = getClassAndCategory(
+      character.card.element
+    );
+
+    const hasEZA = !!character?.optimal_awakening_growths?.[0];
+    const hasSEZA = !!character?.optimal_awakening_growths?.[1];
+
+    const body: ICharacter = {
+      id,
+      title: character.card.title,
+      name: character.card.name,
+      open_at: character.card.open_at,
+      last_awakening: lastAwaken,
+      hiddens,
+      class: cclass as CLASS,
+      category: category as CATEGORY,
+      rarity: getRarity(character.card.rarity),
+      hasEZA,
+      hasSEZA,
+      orbs,
+    };
+
+    const cardId = body.rarity === "SSR" ? id : Number(id) - 1;
+
+    const image = await getCardImage(cardId);
+
+    await uploadImage({
+      file: image,
+      fileName: body.id + ".webp",
+    });
+
+    const newCharacter = new Character(body);
+
+    await newCharacter.save();
+
+    return NextResponse.json(newCharacter, {
       status: 201,
     });
   } catch (error) {
-    console.log({ error });
     return NextResponse.json({ message: "Error post" }, { status: 500 });
   }
 }

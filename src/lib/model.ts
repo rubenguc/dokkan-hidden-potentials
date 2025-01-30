@@ -26,18 +26,6 @@ const CharacterSchema = new mongoose.Schema({
   },
   hiddens: [
     {
-      offensive: {
-        type: Boolean,
-        default: false,
-      },
-      defensive: {
-        type: Boolean,
-        default: false,
-      },
-      support: {
-        type: Boolean,
-        default: false,
-      },
       additional: {
         type: Number,
         default: 0,
@@ -52,13 +40,53 @@ const CharacterSchema = new mongoose.Schema({
       },
     },
   ],
+  orbs: [
+    {
+      bronze: {
+        type: String,
+        default: "",
+      },
+      silver: {
+        type: String,
+        default: "",
+      },
+      gold: {
+        type: String,
+        defaul: "",
+      },
+    },
+  ],
+  open_at: {
+    type: Date,
+    validate: {
+      validator: (v) => v instanceof Date && !isNaN(v),
+      message: "Fecha inválida",
+    },
+  },
+  last_awakening: {
+    type: Date,
+    validate: {
+      validator: (v) => v instanceof Date && !isNaN(v),
+      message: "Fecha inválida",
+    },
+  },
+  hasEZA: {
+    type: Boolean,
+    default: false,
+  },
+  hasSEZA: {
+    type: Boolean,
+    default: false,
+  },
 });
 
+CharacterSchema.index({ last_awakening: 1 });
+CharacterSchema.index({ last_awakening: -1 });
 CharacterSchema.index({ rarity: 1 });
 CharacterSchema.index({ class: 1 });
 CharacterSchema.index({ category: 1 });
-CharacterSchema.index({ id: 1 }); // ASC
-CharacterSchema.index({ id: -1 }); // DESC
+CharacterSchema.index({ id: 1 });
+CharacterSchema.index({ id: -1 });
 
 const Character =
   mongoose.models.Character || mongoose.model("Character", CharacterSchema);
