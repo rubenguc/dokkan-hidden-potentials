@@ -21,19 +21,15 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Badge } from "@/components/ui/badge";
 import { useToggle } from "react-use";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CharacterFormProps {
   values?: Character;
   onFinish: () => void;
 }
 
-const DEFAULT_CHARACTER: Character = {
-  id: "0",
-  name: "",
-  title: "",
-  category: CATEGORY.AGL,
-  class: CLASS.SUPER,
-  rarity: RARITY.UR,
+const DEFAULT_CHARACTER: Partial<Character> & { json: string } = {
+  // id: "0",
   hiddens: [
     {
       mode: "",
@@ -43,18 +39,15 @@ const DEFAULT_CHARACTER: Character = {
     },
   ],
   orbs: [],
-  hasEZA: false,
-  hasSEZA: false,
-  last_awakening: "",
-  open_at: "",
+  json: ""
 };
 
 const schema = yup.object().shape({
-  id: yup
-    .number()
-    .typeError("El ID debe ser un número")
-    .required("El ID es requerido")
-    .min(1, "El ID debe ser mayor a 0"),
+  // id: yup
+  //   .number()
+  //   .typeError("El ID debe ser un número")
+  //   .required("El ID es requerido")
+  //   .min(1, "El ID debe ser mayor a 0"),
   hiddens: yup
     .array()
     .of(
@@ -84,6 +77,7 @@ const schema = yup.object().shape({
       gold: yup.string().required("Gold es requerido"),
     })
   ),
+  json: yup.string().required("Info requerida")
 });
 
 export default function CharacterForm({
@@ -111,6 +105,8 @@ export default function CharacterForm({
     toggleLoading();
     try {
       let promise = null;
+
+
 
       if (isCreation) {
         promise = axios.post("/api/characters", data);
@@ -161,12 +157,23 @@ export default function CharacterForm({
       )}
 
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-        <div>
+        {/* <div>
           <Label htmlFor="id">ID</Label>
           <Input id="id" {...register("id")} />
 
           {errors.id && (
             <Badge variant="destructive">{errors.id.message}</Badge>
+          )}
+        </div> */}
+
+        <div>
+          <Label htmlFor="json">Info</Label>
+          <Textarea id="json" {...register("json")}
+
+          />
+
+          {errors.id && (
+            <Badge variant="destructive">{errors.json.message}</Badge>
           )}
         </div>
 

@@ -49,9 +49,11 @@ export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
 
-    const { id, hiddens, orbs } = await req.json();
+    const { hiddens, orbs, json } = await req.json();
 
-    const character = await getCardInfo(id);
+    const character = JSON.parse(json.trim());
+
+    const id = character.card.id;
 
     const lastAwaken =
       character.optimal_awakening_growths?.pop?.()?.open_at ||
@@ -104,11 +106,25 @@ export async function PUT(req: NextRequest) {
   try {
     await connectToDatabase();
 
-    const body = await req.json();
+    const { hiddens, orbs, json } = await req.json();
+
+    const character = JSON.parse(json.trim());
+
+    const hasEZA = !!character?.optimal_awakening_growths?.[0];
+    const hasSEZA = !!character?.optimal_awakening_growths?.[1];
+
+    const id = character.card.id;
+
+    const body = {
+      hiddens,
+      hasEZA,
+      hasSEZA,
+      orbs,
+    };
 
     const result = await Character.findOneAndUpdate(
       {
-        id: body.id,
+        id,
       },
       {
         $set: body,
@@ -126,7 +142,6 @@ export async function PUT(req: NextRequest) {
       }
     );
   } catch (error) {
-    console.log({ error });
     return NextResponse.json({ message: "Error post" }, { status: 500 });
   }
 }
