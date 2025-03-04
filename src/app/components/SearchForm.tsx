@@ -12,42 +12,58 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 export default function SearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleSearch = (formData: FormData) => {
+  const [form, setForm] = useState({
+    name: searchParams.get("name") || "",
+    class: searchParams.get("class") || "ALL",
+    category: searchParams.get("category") || "ALL",
+    rarity: searchParams.get("rarity") || "ALL",
+  });
+
+  const onFormChange = (field: string, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSearch = () => {
     const params = new URLSearchParams();
 
-    const name = formData.get("name") as string;
-    const characterClass = formData.get("class") as string;
-    const category = formData.get("category") as string;
-    const rarity = formData.get("rarity") as string;
 
-    if (name) params.set("name", name);
-    if (characterClass && characterClass !== "ALL") params.set("class", characterClass);
-    if (category && category !== "ALL") params.set("category", category);
-    if (rarity && rarity !== "ALL") params.set("rarity", rarity);
+    if (form.name) params.set("name", form.name);
+    if (form.class && form.class !== "ALL") params.set("class", form.class);
+    if (form.category && form.category !== "ALL")
+      params.set("category", form.category);
+    if (form.rarity && form.rarity !== "ALL") params.set("rarity", form.rarity);
 
     params.set("page", "1");
     router.push(`/?${params.toString()}`);
   };
 
+  useEffect(() => {
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.class, form.category, form.rarity]);
+
   return (
     <form
-      action={(formData) => handleSearch(formData)}
-      className="mx-auto w-fit flex flex-col gap-4 items-center"
-    >
+      onSubmit={(e) => {
+        e.preventDefault();
+      }}
+      className="mx-auto w-fit flex flex-col gap-4 items-center">
       <div className="flex flex-col md:flex-row flex-wrap gap-3">
         <div>
           <Label>Class</Label>
           <Select
             name="class"
-            defaultValue={searchParams.get("class") || "ALL"}
-            onValueChange={() => {
-              document.forms[0].requestSubmit();
-            }}
+            value={form.class}
+            onValueChange={(value) => onFormChange("class", value)}
           >
             <SelectTrigger className="min-w-48">
               <SelectValue placeholder="Select class" />
@@ -67,10 +83,8 @@ export default function SearchForm() {
           <Label>Category</Label>
           <Select
             name="category"
-            defaultValue={searchParams.get("category") || "ALL"}
-            onValueChange={() => {
-              document.forms[0].requestSubmit();
-            }}
+            value={form.category}
+            onValueChange={(value) => onFormChange("category", value)}
           >
             <SelectTrigger className="min-w-48">
               <SelectValue placeholder="Select category" />
@@ -90,10 +104,8 @@ export default function SearchForm() {
           <Label>Rarity</Label>
           <Select
             name="rarity"
-            defaultValue={searchParams.get("rarity") || "ALL"}
-            onValueChange={() => {
-              document.forms[0].requestSubmit();
-            }}
+            value={form.rarity}
+            onValueChange={(value) => onFormChange("rarity", value)}
           >
             <SelectTrigger className="min-w-48">
               <SelectValue placeholder="Select rarity" />
@@ -114,9 +126,10 @@ export default function SearchForm() {
         <Input
           name="name"
           placeholder="Search by name"
-          defaultValue={searchParams.get("name") || ""}
+          value={form.name}
+          onChange={({ target: { value } }) => onFormChange("name", value)}
         />
-        <Button type="submit">Search</Button>
+        <Button onClick={handleSearch}>Search</Button>
       </div>
     </form>
   );

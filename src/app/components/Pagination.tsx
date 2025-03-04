@@ -21,6 +21,8 @@ export default function Pagination({ totalPages, page }: {
   const isFirstPage = page > 1;
   const isLastPage = page >= totalPages;
 
+  if (totalPages === 0) return null
+
   return (
     <div className="flex justify-center mt-10 gap-2 items-center">
       <Button
