@@ -1,6 +1,7 @@
 import CharacterCard from "@/components/shared/CharacterCard";
 import { Character } from "@/interfaces";
 import Image from "next/image";
+import { SkillOrbs } from "./SkillOrbs";
 
 const HiddenStat = ({
   stat,
@@ -52,6 +53,9 @@ export const CharacterHidden = ({ character }: CharacterHiddenProps) => {
             <HiddenStat stat="eva" value={hidden.evasion} />
           </div>
         ))}
+        <SkillOrbs
+          orbs={character.orbs}
+        />
       </div>
     </div>
   );
