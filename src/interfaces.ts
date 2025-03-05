@@ -7,10 +7,13 @@ export interface Hidden {
   evasion: number;
 }
 
-export interface Obrs {
+export interface Orb {
   bronze: string;
+  bronzeIsExclusive: boolean;
   silver: string;
+  silverIsExclusive: boolean;
   gold: string;
+  goldIsExclusive: boolean;
 }
 
 export interface Character {
@@ -21,7 +24,7 @@ export interface Character {
   class: CLASS;
   category: CATEGORY;
   hiddens: Hidden[];
-  orbs: Obrs[];
+  orbs: Orb[];
   open_at: string;
   last_awakening: string;
   hasEZA: boolean;

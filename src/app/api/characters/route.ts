@@ -1,8 +1,8 @@
 import { CATEGORY, CLASS } from "@/contants";
 import { Character as ICharacter } from "@/interfaces";
-import { getCardImage, getCardInfo } from "@/lib/api";
+import { getCardImage } from "@/lib/api";
 import { connectToDatabase } from "@/lib/database";
-import { getClassAndCategory, getRarity, RARITY } from "@/lib/hidden-utils";
+import { getClassAndCategory, getRarity } from "@/lib/hidden-utils";
 import Character from "@/lib/model";
 import { uploadImage } from "@/lib/storage";
 import { NextRequest, NextResponse } from "next/server";
@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   const limit = parseInt(searchParams.get("limit") || "10");
   const nameFilter = searchParams.get("name") || "";
 
-  const query = {};
+  const query: any = {};
 
   if (nameFilter) {
     query.name = new RegExp(nameFilter, "i");
@@ -106,21 +106,27 @@ export async function PUT(req: NextRequest) {
   try {
     await connectToDatabase();
 
-    const { hiddens, orbs, json } = await req.json();
+    const { hiddens, orbs, json, id } = await req.json();
 
-    const character = JSON.parse(json.trim());
-
-    const hasEZA = !!character?.optimal_awakening_growths?.[0];
-    const hasSEZA = !!character?.optimal_awakening_growths?.[1];
-
-    const id = character.card.id;
-
-    const body = {
+    const body: any = {
       hiddens,
-      hasEZA,
-      hasSEZA,
       orbs,
     };
+
+    if (id && json !== "") {
+      const character = JSON.parse(json.trim());
+
+      const hasEZA = !!character?.optimal_awakening_growths?.[0];
+      const hasSEZA = !!character?.optimal_awakening_growths?.[1];
+
+      const lastAwaken =
+        character.optimal_awakening_growths?.pop?.()?.open_at ||
+        character.card.open_at;
+
+      body.hasEZA = hasEZA;
+      body.hasSEZA = hasSEZA;
+      body.lastAwakening = lastAwaken;
+    }
 
     const result = await Character.findOneAndUpdate(
       {

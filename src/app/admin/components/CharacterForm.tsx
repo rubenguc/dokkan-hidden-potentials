@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORY, CLASS, ORBS, RARITY } from "@/contants";
+import { ORBS } from "@/contants";
 import { Character } from "@/interfaces";
 import axios from "axios";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -22,6 +22,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Badge } from "@/components/ui/badge";
 import { useToggle } from "react-use";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@radix-ui/react-checkbox";
 
 interface CharacterFormProps {
   values?: Character;
@@ -29,7 +30,6 @@ interface CharacterFormProps {
 }
 
 const DEFAULT_CHARACTER: Partial<Character> & { json: string } = {
-  // id: "0",
   hiddens: [
     {
       mode: "",
@@ -39,15 +39,10 @@ const DEFAULT_CHARACTER: Partial<Character> & { json: string } = {
     },
   ],
   orbs: [],
-  json: ""
+  json: "",
 };
 
 const schema = yup.object().shape({
-  // id: yup
-  //   .number()
-  //   .typeError("El ID debe ser un número")
-  //   .required("El ID es requerido")
-  //   .min(1, "El ID debe ser mayor a 0"),
   hiddens: yup
     .array()
     .of(
@@ -77,7 +72,7 @@ const schema = yup.object().shape({
       gold: yup.string().required("Gold es requerido"),
     })
   ),
-  json: yup.string().required("Info requerida")
+  json: yup.string().optional(),
 });
 
 export default function CharacterForm({
@@ -90,7 +85,6 @@ export default function CharacterForm({
     register,
     control,
     handleSubmit,
-    setValue,
     getValues,
     formState: { errors },
   } = useForm<Character>({
@@ -105,7 +99,6 @@ export default function CharacterForm({
     toggleLoading();
     try {
       let promise = null;
-
 
 
       if (isCreation) {
@@ -140,10 +133,12 @@ export default function CharacterForm({
     fields: orbFields,
     append: appenOrb,
     remove: removeOrb,
+    update: updateOrb,
   } = useFieldArray({
     control,
     name: "orbs",
   });
+
 
   return (
     <>
@@ -157,20 +152,9 @@ export default function CharacterForm({
       )}
 
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-        {/* <div>
-          <Label htmlFor="id">ID</Label>
-          <Input id="id" {...register("id")} />
-
-          {errors.id && (
-            <Badge variant="destructive">{errors.id.message}</Badge>
-          )}
-        </div> */}
-
         <div>
           <Label htmlFor="json">Info</Label>
-          <Textarea id="json" {...register("json")}
-
-          />
+          <Textarea id="json" {...register("json")} />
 
           {errors.id && (
             <Badge variant="destructive">{errors.json.message}</Badge>
@@ -250,8 +234,11 @@ export default function CharacterForm({
             onClick={() =>
               appenOrb({
                 bronze: "",
+                bronzeIsExclusive: false,
                 silver: "",
+                silverIsExclusive: false,
                 gold: "",
+                goldIsExclusive: false,
               })
             }
           >
@@ -267,77 +254,157 @@ export default function CharacterForm({
         )}
 
         {orbFields.map((item, index) => (
-          <div key={item.id} className="flex gap-2 items-end">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Label className="capitalize">Bronze</Label>
-                <Select
-                  defaultValue={getValues(`orbs.${index}.bronze`)}
-                  onValueChange={(value) =>
-                    setValue(`orbs.${index}.bronze`, value)
-                  }
-                >
-                  <SelectTrigger className="max-w-24">
-                    <SelectValue />
-                    <SelectContent>
-                      {ORBS.map((orb) => (
-                        <SelectItem key={orb.id} value={orb.id}>
-                          {orb.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </SelectTrigger>
-                </Select>
+          <div key={item.id} className="flex gap-2 w-full">
+            <div className="flex flex-col gap-2 w-full">
+              <div className="flex-1 flex gap-2 items-center">
+                <div className="flex-1 w-full">
+                  <Label className="capitalize">Bronze</Label>
+                  <div className="flex gap-2 items-center">
+                    <Select
+                      value={item.bronze}
+                      onValueChange={(value) =>
+                        updateOrb(index, {
+                          ...item,
+                          bronze: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="max-w-24">
+                        <SelectValue />
+                        <SelectContent>
+                          {ORBS.map((orb) => (
+                            <SelectItem key={orb.id} value={orb.id}>
+                              {orb.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </SelectTrigger>
+                    </Select>
+                    <div className="flex space-x-2">
+                      <Checkbox
+                        id="bronze"
+                        className={`border w-4 h-4 rounded border-white ${item.bronzeIsExclusive && " bg-green-400"
+                          }`}
+                        checked={item.bronzeIsExclusive}
+                        onCheckedChange={(checked) =>
+                          updateOrb(index, {
+                            ...item,
+                            bronzeIsExclusive: checked as boolean,
+                          })
+                        }
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor="bronze"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Is exclusive
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="flex-1">
-                <Label className="capitalize">Silver</Label>
-                <Select
-                  defaultValue={getValues(`orbs.${index}.silver`)}
-                  onValueChange={(value) =>
-                    setValue(`orbs.${index}.silver`, value)
-                  }
-                >
-                  <SelectTrigger className="max-w-24">
-                    <SelectValue />
-                    <SelectContent>
-                      {ORBS.map((orb) => (
-                        <SelectItem key={orb.id} value={orb.id}>
-                          {orb.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </SelectTrigger>
-                </Select>
+                <div>
+                  <Label className="capitalize">Silver</Label>
+                  <div className="flex gap-2 items-center">
+                    <Select
+                      value={item.silver}
+                      onValueChange={(value) =>
+                        updateOrb(index, {
+                          ...item,
+                          silver: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="max-w-24">
+                        <SelectValue />
+                        <SelectContent>
+                          {ORBS.map((orb) => (
+                            <SelectItem key={orb.id} value={orb.id}>
+                              {orb.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </SelectTrigger>
+                    </Select>
+                    <div className="flex space-x-2">
+                      <Checkbox
+                        id="silver"
+                        className={`border w-4 h-4 rounded border-white ${item.silverIsExclusive && " bg-green-400"
+                          }`}
+                        checked={item.silverIsExclusive}
+                        onCheckedChange={(checked) =>
+                          updateOrb(index, {
+                            ...getValues(`orbs.${index}`),
+                            silverIsExclusive: checked as boolean,
+                          })
+                        }
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor="silver"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Is exclusive
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="flex-1">
-                <Label className="capitalize">Gold</Label>
-                <Select
-                  defaultValue={getValues(`orbs.${index}.gold`)}
-                  onValueChange={(value) =>
-                    setValue(`orbs.${index}.gold`, value)
-                  }
-                >
-                  <SelectTrigger className="max-w-24">
-                    <SelectValue />
-                    <SelectContent>
-                      {ORBS.map((orb) => (
-                        <SelectItem key={orb.id} value={orb.id}>
-                          {orb.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </SelectTrigger>
-                </Select>
+                <div>
+                  <Label className="capitalize">Gold</Label>
+                  <div className="flex gap-2 items-center">
+                    <Select
+                      value={item.gold}
+                      onValueChange={(value) =>
+                        updateOrb(index, {
+                          ...item,
+                          gold: value,
+                        })
+                      }
+
+                    >
+                      <SelectTrigger className="max-w-24">
+                        <SelectValue />
+                        <SelectContent>
+                          {ORBS.map((orb) => (
+                            <SelectItem key={orb.id} value={orb.id}>
+                              {orb.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </SelectTrigger>
+                    </Select>
+                    <div className="flex space-x-2">
+                      <Checkbox
+                        id="gold"
+                        className={`border w-4 h-4 rounded border-white ${item.goldIsExclusive && " bg-green-400"
+                          }`}
+                        checked={item.goldIsExclusive}
+                        onCheckedChange={(checked) =>
+                          updateOrb(index, {
+                            ...item,
+                            goldIsExclusive: checked as boolean,
+                          })
+                        }
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor="gold"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Is exclusive
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => removeOrb(index)}
-            >
-              <Trash />
-            </Button>
           </div>
         ))}
 

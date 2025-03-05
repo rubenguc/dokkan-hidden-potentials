@@ -46,13 +46,25 @@ const CharacterSchema = new mongoose.Schema({
         type: String,
         default: "",
       },
+      bronzeIsExclusive: {
+        type: Boolean,
+        default: false,
+      },
       silver: {
         type: String,
         default: "",
       },
+      silverIsExclusive: {
+        type: Boolean,
+        default: false,
+      },
       gold: {
         type: String,
         defaul: "",
+      },
+      goldIsExclusive: {
+        type: Boolean,
+        default: false,
       },
     },
   ],

@@ -78,7 +78,7 @@ export default function Admin() {
             <CharacterCard
               containerClassName="relative h-32 w-32 md:flex-1/2 mx-auto md:mx-0"
               {...(info.row.original as Character)}
-              id={info.row.original.id}
+              id={info.row.original.id as string}
             />
           </>
         ),
@@ -218,7 +218,7 @@ export default function Admin() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>hola</DialogTitle>
+            <DialogTitle>Form</DialogTitle>
           </DialogHeader>
           <div>
             <CharacterForm values={selectedCharacter} onFinish={onClose} />
