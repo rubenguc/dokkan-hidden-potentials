@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       status: 201,
     });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ message: "Error post" }, { status: 500 });
   }
 }
@@ -126,6 +127,7 @@ export async function PUT(req: NextRequest) {
       body.hasEZA = hasEZA;
       body.hasSEZA = hasSEZA;
       body.lastAwakening = lastAwaken;
+      body.id = character.card.id;
     }
 
     const result = await Character.findOneAndUpdate(

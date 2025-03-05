@@ -39,7 +39,7 @@ export default function CharacterCard({
       <img
         className="absolute -top-[7px] left-0 w-full"
         src={`${IMAGE_URL}/${id}.webp`}
-        alt="rarity"
+        alt="image"
       />
     </div>
   );
