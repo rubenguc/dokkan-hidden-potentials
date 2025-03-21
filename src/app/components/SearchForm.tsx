@@ -35,7 +35,6 @@ export default function SearchForm() {
   const handleSearch = () => {
     const params = new URLSearchParams();
 
-
     if (form.name) params.set("name", form.name);
     if (form.class && form.class !== "ALL") params.set("class", form.class);
     if (form.category && form.category !== "ALL")
@@ -56,7 +55,8 @@ export default function SearchForm() {
       onSubmit={(e) => {
         e.preventDefault();
       }}
-      className="mx-auto w-fit flex flex-col gap-4 items-center">
+      className="mx-auto w-fit flex flex-col gap-4 items-center"
+    >
       <div className="flex flex-col md:flex-row flex-wrap gap-3">
         <div>
           <Label>Class</Label>
@@ -65,8 +65,8 @@ export default function SearchForm() {
             value={form.class}
             onValueChange={(value) => onFormChange("class", value)}
           >
-            <SelectTrigger className="min-w-48">
-              <SelectValue placeholder="Select class" />
+            <SelectTrigger className="min-w-32 bg-[#4a4f4a]/70">
+              <SelectValue placeholder="Select class" className="" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">ALL</SelectItem>
@@ -86,7 +86,7 @@ export default function SearchForm() {
             value={form.category}
             onValueChange={(value) => onFormChange("category", value)}
           >
-            <SelectTrigger className="min-w-48">
+            <SelectTrigger className="min-w-32 bg-[#4a4f4a]/70">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
@@ -107,7 +107,7 @@ export default function SearchForm() {
             value={form.rarity}
             onValueChange={(value) => onFormChange("rarity", value)}
           >
-            <SelectTrigger className="min-w-48">
+            <SelectTrigger className="min-w-32 bg-[#4a4f4a]/70">
               <SelectValue placeholder="Select rarity" />
             </SelectTrigger>
             <SelectContent>
@@ -128,6 +128,7 @@ export default function SearchForm() {
           placeholder="Search by name"
           value={form.name}
           onChange={({ target: { value } }) => onFormChange("name", value)}
+          className="bg-[#4a4f4a]/70"
         />
         <Button onClick={handleSearch}>Search</Button>
       </div>

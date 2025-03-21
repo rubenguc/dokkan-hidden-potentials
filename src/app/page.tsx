@@ -66,7 +66,7 @@ export default async function Home({
     <div className="w-full pb-12">
       <h1 className="text-center mt-10 font-bold text-4xl">{`Dokkan Battle Hidden potential`}</h1>
 
-      <div className="max-w-5xl w-full mx-auto rounded bg-gray-600 p-10 md:p-14">
+      <div className="max-w-5xl w-full mx-auto rounded-xl border border-[#b5c3ac] p-10 md:p-14 bg-[#1b4104]">
         <SearchForm />
 
         <div className="grid lg:grid-cols-2 w-fit mx-auto mt-10 gap-5">

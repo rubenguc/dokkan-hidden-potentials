@@ -30,7 +30,7 @@ interface CharacterHiddenProps {
 
 export const CharacterHidden = ({ character }: CharacterHiddenProps) => {
   return (
-    <div className="flex flex-col items-center md:flex-row md:gap-2 max-w-xl border border-neutral-500/90 rounded-xl px-1">
+    <div className="flex flex-col items-center md:flex-row md:gap-2 max-w-xl border border-neutral-500/90 rounded px-1 bg-[#1f251c]/60">
       <CharacterCard
         id={character.id}
         category={character.category}
@@ -40,7 +40,7 @@ export const CharacterHidden = ({ character }: CharacterHiddenProps) => {
       />
 
       <div className="flex flex-col gap-3 py-4 flex-1 items-center md:justify-start">
-        <div className="flex flex-col">
+        <div className="flex flex-col bg-[#4a4f4a]/45 rounded-lg p-1">
           <span className="text text-center text-neutral-300 text-sm">
             {character.title}
           </span>
@@ -53,9 +53,7 @@ export const CharacterHidden = ({ character }: CharacterHiddenProps) => {
             <HiddenStat stat="eva" value={hidden.evasion} />
           </div>
         ))}
-        <SkillOrbs
-          orbs={character.orbs}
-        />
+        <SkillOrbs orbs={character.orbs} />
       </div>
     </div>
   );

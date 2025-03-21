@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function Pagination({ totalPages, page }: {
+export default function Pagination({
+  totalPages,
+  page,
+}: {
   totalPages: number;
-  page: number
+  page: number;
 }) {
   const searchParams = useSearchParams();
-  const router = useRouter()
+  const router = useRouter();
   const params = new URLSearchParams(searchParams.toString());
 
   const generatePageUrl = (newPage: number) => {
@@ -17,11 +20,10 @@ export default function Pagination({ totalPages, page }: {
     router.push(`/?${params.toString()}`);
   };
 
-
-  const isFirstPage = page > 1;
+  const isFirstPage = page === 1;
   const isLastPage = page >= totalPages;
 
-  if (totalPages === 0) return null
+  if (totalPages === 0) return null;
 
   return (
     <div className="flex justify-center mt-10 gap-2 items-center">
@@ -48,10 +50,11 @@ export default function Pagination({ totalPages, page }: {
               size="icon"
               key={pageNumber}
               onClick={() => generatePageUrl(pageNumber)}
-              className={`p-2 rounded ${Number(page) === pageNumber
-                ? "bg-blue-500 text-white"
-                : "bg-gray-500 hover:bg-gray-700 text-white"
-                }`}
+              className={`p-2 rounded ${
+                Number(page) === pageNumber
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-500 hover:bg-gray-700 text-white"
+              }`}
             >
               {pageNumber}
             </Button>
@@ -73,7 +76,7 @@ export default function Pagination({ totalPages, page }: {
         variant="outline"
         size="icon"
         disabled={isLastPage}
-        onClick={() => generatePageUrl(page + -1)}
+        onClick={() => generatePageUrl(page + 1)}
       >
         <ChevronRight />
       </Button>
