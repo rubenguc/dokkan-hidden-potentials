@@ -112,6 +112,10 @@ export const ORBS = [
     id: "eva_def",
     name: fuseNames([ORB_NAMES.EVA, ORB_NAMES.DEF]),
   },
+  {
+    id: "atk_def",
+    name: fuseNames([ORB_NAMES.ATK, ORB_NAMES.DEF]),
+  },
 ];
 
 // deleted

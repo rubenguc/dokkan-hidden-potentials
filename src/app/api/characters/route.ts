@@ -4,7 +4,7 @@ import { getCardImage } from "@/lib/api";
 import { connectToDatabase } from "@/lib/database";
 import { getClassAndCategory, getRarity } from "@/lib/hidden-utils";
 import Character from "@/lib/model";
-import { uploadImage } from "@/lib/storage";
+import { deleteImage, uploadImage } from "@/lib/storage";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
     // console.log({ error });
     return NextResponse.json(
       { message: "Error fetching characters" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       character.card.open_at;
 
     const { class: cclass, category } = getClassAndCategory(
-      character.card.element
+      character.card.element,
     );
 
     const hasEZA = !!character?.optimal_awakening_growths?.[0];
@@ -124,10 +124,26 @@ export async function PUT(req: NextRequest) {
         character.optimal_awakening_growths?.pop?.()?.open_at ||
         character.card.open_at;
 
+      const newId = character.card.id;
+
+      const cardIdForImage = body.rarity === "SSR" ? newId : Number(newId) - 1;
+
+      const image = await getCardImage(cardIdForImage);
+
+      await deleteImage({
+        fileName: id + ".webp",
+      });
+
+      await uploadImage({
+        file: image,
+        fileName: newId + ".webp",
+      });
+
       body.hasEZA = hasEZA;
       body.hasSEZA = hasSEZA;
       body.lastAwakening = lastAwaken;
-      body.id = character.card.id;
+      body.id = newId;
+      body.image = image;
     }
 
     const result = await Character.findOneAndUpdate(
@@ -136,7 +152,7 @@ export async function PUT(req: NextRequest) {
       },
       {
         $set: body,
-      }
+      },
     );
 
     if (result.modifiedCount === 0) {
@@ -147,7 +163,7 @@ export async function PUT(req: NextRequest) {
       {},
       {
         status: 201,
-      }
+      },
     );
   } catch (error) {
     return NextResponse.json({ message: "Error post" }, { status: 500 });

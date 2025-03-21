@@ -7,7 +7,8 @@ interface CharacterProps extends SimpleCharacter {
   containerClassName: string;
 }
 
-const IMAGE_URL = process.env.IMAGE_URL_SERVER || process.env.NEXT_PUBLIC_IMAGE_URL_SERVER
+const IMAGE_URL =
+  process.env.IMAGE_URL_SERVER || process.env.NEXT_PUBLIC_IMAGE_URL_SERVER;
 
 export default function CharacterCard({
   category,
@@ -37,7 +38,7 @@ export default function CharacterCard({
       />
 
       <img
-        className="absolute -top-[7px] left-0 w-full"
+        className="absolute -top-[6px] left-0 w-full"
         src={`${IMAGE_URL}/${id}.webp`}
         alt="image"
       />

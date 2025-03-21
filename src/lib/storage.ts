@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
 const accountId = process.env.CLOUDFLARE_ACCOUNT_ID as string;
 const accessKeyId = process.env.R2_ACCESS_KEY as string;
@@ -29,6 +33,15 @@ export const uploadImage = async ({
       Key: fileName,
       Body: file,
       ContentType: "image/webp",
-    })
+    }),
+  );
+};
+
+export const deleteImage = async ({ fileName }: { fileName: string }) => {
+  await s3Client.send(
+    new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: fileName,
+    }),
   );
 };

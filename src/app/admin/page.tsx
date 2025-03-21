@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import { Character } from "@/interfaces";
 import CharacterCard from "@/components/shared/CharacterCard";
-import { useToggle } from "react-use";
+import { useDebounce, useToggle } from "react-use";
 import CharacterForm from "@/app/admin/components/CharacterForm";
 import {
   Table,
@@ -32,6 +32,7 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const fetchCharacters = async ({
   pagination,
@@ -51,16 +52,18 @@ export default function Admin() {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [nameFilter, setNameFilter] = useState("");
+  const [search, setSearch] = useState("");
+
+  const [val, setVal] = useState("");
 
   const [isOpen, toggle] = useToggle(false);
 
   const { data } = useQuery({
-    queryKey: ["characters", pagination, nameFilter],
+    queryKey: ["characters", pagination, search],
     queryFn: () =>
       fetchCharacters({
         pagination,
-        name: nameFilter,
+        name: search,
       }),
   });
 
@@ -101,7 +104,7 @@ export default function Admin() {
         },
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -127,9 +130,22 @@ export default function Admin() {
     toggle();
   };
 
+  const [, cancel] = useDebounce(
+    () => {
+      setSearch(val);
+    },
+    1000,
+    [val],
+  );
+
   return (
     <div className="max-w-6xl px-2 py-20 mx-auto">
-      <div className="flex justify-end mb-10">
+      <div className="flex justify-between items-center mb-10">
+        <Input
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          className="w-72"
+        />
         <Button onClick={toggle}>New</Button>
       </div>
 
@@ -144,9 +160,9 @@ export default function Admin() {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   );
                 })}
@@ -164,7 +180,7 @@ export default function Admin() {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -186,7 +202,8 @@ export default function Admin() {
 
       <div className="flex items-center justify-center gap-2 mt-10">
         <Button
-          variant="outline" size="icon"
+          variant="outline"
+          size="icon"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
@@ -194,7 +211,8 @@ export default function Admin() {
         </Button>
 
         <Button
-          variant="outline" size="icon"
+          variant="outline"
+          size="icon"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
