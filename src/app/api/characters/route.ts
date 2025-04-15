@@ -140,7 +140,7 @@ export async function PUT(req: NextRequest) {
 
       body.hasEZA = hasEZA;
       body.hasSEZA = hasSEZA;
-      body.lastAwakening = lastAwaken;
+      body.last_awakening = lastAwaken;
       body.id = newId;
       body.image = image;
     }
