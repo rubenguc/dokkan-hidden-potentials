@@ -32,11 +32,11 @@ export default function Pagination({
         size="icon"
         disabled={isFirstPage}
         onClick={() => generatePageUrl(page - 1)}
+        className="bg-[#818879] hover:bg-[#98a092]"
       >
-        <ChevronLeft />
+        <ChevronLeft className="text-white" />
       </Button>
 
-      {/* Números de Página */}
       {Array.from({ length: totalPages }, (_, index) => {
         const pageNumber = index + 1;
 
@@ -50,11 +50,7 @@ export default function Pagination({
               size="icon"
               key={pageNumber}
               onClick={() => generatePageUrl(pageNumber)}
-              className={`p-2 rounded ${
-                Number(page) === pageNumber
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-500 hover:bg-gray-700 text-white"
-              }`}
+              className={`p-2 rounded bg-green-900 hover:bg-green-800`}
             >
               {pageNumber}
             </Button>
@@ -63,7 +59,7 @@ export default function Pagination({
 
         if (pageNumber === 4 && totalPages > 6) {
           return (
-            <span key="dots" className="p-2">
+            <span key="dots" className="p-2 text-white">
               ...
             </span>
           );
@@ -77,8 +73,9 @@ export default function Pagination({
         size="icon"
         disabled={isLastPage}
         onClick={() => generatePageUrl(page + 1)}
+        className="bg-[#818879] hover:bg-[#98a092]"
       >
-        <ChevronRight />
+        <ChevronRight className="text-white" />
       </Button>
     </div>
   );

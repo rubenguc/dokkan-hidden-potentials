@@ -97,9 +97,6 @@ CharacterSchema.index({ last_awakening: -1 });
 CharacterSchema.index({ rarity: 1 });
 CharacterSchema.index({ class: 1 });
 CharacterSchema.index({ category: 1 });
-CharacterSchema.index({ id: 1 });
-CharacterSchema.index({ id: -1 });
 
-const Character =
+export const Character =
   mongoose.models.Character || mongoose.model("Character", CharacterSchema);
-export default Character;

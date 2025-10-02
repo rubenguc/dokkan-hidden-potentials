@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { Character } from "@/interfaces";
 
 type SimpleCharacter = Pick<Character, "id" | "category" | "class" | "rarity">;
@@ -10,7 +9,7 @@ interface CharacterProps extends SimpleCharacter {
 const IMAGE_URL =
   process.env.IMAGE_URL_SERVER || process.env.NEXT_PUBLIC_IMAGE_URL_SERVER;
 
-export default function CharacterCard({
+export function CharacterImage({
   category,
   id,
   containerClassName,
@@ -26,15 +25,17 @@ export default function CharacterCard({
       />
 
       <img
-        className="absolute bottom-1 left-2 scale-125  z-50"
+        id="rarity"
+        className="absolute -bottom-[7px] -left-2 scale-80  z-50"
         src={`/assets/rarity/${rarity.toLowerCase()}.webp`}
         alt={`rarity ${rarity}`}
       />
 
       <img
-        className="absolute -top-9 -right-10 scale-[.47]  z-50"
+        id="type"
+        className="absolute -top-9 -right-8.5 scale-[.35]  z-50"
         src={`/assets/type/${_class?.toLowerCase()}_${category?.toLowerCase()}.webp`}
-        alt={`type ${rarity}`}
+        alt={`type ${category}`}
       />
 
       <img

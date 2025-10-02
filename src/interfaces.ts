@@ -50,6 +50,6 @@ export interface SearchParams {
   page: number;
   name: string;
   rarity: string;
-  characterClass: string;
+  class: string;
   category: string;
 }
