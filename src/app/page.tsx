@@ -1,7 +1,7 @@
 import { Footer } from "@/features/home/components/Footer";
 import { Header } from "@/features/home/components/Header";
 import { useGetCharacters } from "@/features/characters/hooks/useGetCharacters";
-import { SearchParams } from "@/interfaces";
+import type { SearchParams } from "@/interfaces";
 import { CharacterCard } from "@/features/characters/components/character-card";
 import { Filters } from "@/features/home/components/Filters";
 import Pagination from "@/features/home/components/Pagination";

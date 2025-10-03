@@ -1,4 +1,4 @@
-import { CATEGORY, CLASS, RARITY } from "./contants";
+import { CATEGORY, CLASS, RARITY } from "@/constants";
 
 export interface Hidden {
   mode: string;
@@ -47,7 +47,7 @@ export interface CardInfo {
 }
 
 export interface SearchParams {
-  page: number;
+  page: string;
   name: string;
   rarity: string;
   class: string;

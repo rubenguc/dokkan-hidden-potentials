@@ -5,7 +5,7 @@ import { connectToDatabase } from "@/features/db/db";
 import { SearchParams } from "@/interfaces";
 
 export async function useGetCharacters({
-  page = 1,
+  page = "1",
   name,
   rarity,
   class: characterClass,

@@ -71,14 +71,14 @@ const CharacterSchema = new mongoose.Schema({
   open_at: {
     type: Date,
     validate: {
-      validator: (v) => v instanceof Date && !isNaN(v),
+      validator: (v: unknown) => v instanceof Date && !isNaN(v.getTime()),
       message: "Fecha inválida",
     },
   },
   last_awakening: {
     type: Date,
     validate: {
-      validator: (v) => v instanceof Date && !isNaN(v),
+      validator: (v: unknown) => v instanceof Date && !isNaN(v.getTime()),
       message: "Fecha inválida",
     },
   },
