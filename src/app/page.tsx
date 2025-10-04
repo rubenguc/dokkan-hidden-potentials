@@ -1,10 +1,10 @@
-import { Footer } from "@/features/home/components/footer";
-import { Header } from "@/features/home/components/header";
+import { Footer } from "@/features/home/components/home-footer";
+import { Header } from "@/features/home/components/home-header";
 import { useGetCharacters } from "@/features/characters/hooks/useGetCharacters";
 import type { SearchParams } from "@/interfaces";
 import { CharacterCard } from "@/features/characters/components/character-card";
-import { Filters } from "@/features/home/components/filters";
-import { Pagination } from "@/features/home/components/pagination";
+import { Filters } from "@/features/home/components/home-filters";
+import { Pagination } from "@/features/home/components/home-pagination";
 
 export default async function Home({
   searchParams,
