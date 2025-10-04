@@ -1,7 +1,6 @@
 import { CATEGORY, CLASS, RARITY } from "@/constants";
 
 export interface Hidden {
-  mode: string;
   additional: number;
   critical: number;
   evasion: number;
@@ -29,6 +28,12 @@ export interface Character {
   last_awakening: string;
   hasEZA: boolean;
   hasSEZA: boolean;
+}
+
+export interface CharacterForm {
+  json: string;
+  hiddens: Hidden[];
+  orbs: Orb[];
 }
 
 export interface CardInfo {

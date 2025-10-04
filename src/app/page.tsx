@@ -1,10 +1,10 @@
-import { Footer } from "@/features/home/components/Footer";
-import { Header } from "@/features/home/components/Header";
+import { Footer } from "@/features/home/components/footer";
+import { Header } from "@/features/home/components/header";
 import { useGetCharacters } from "@/features/characters/hooks/useGetCharacters";
 import type { SearchParams } from "@/interfaces";
 import { CharacterCard } from "@/features/characters/components/character-card";
-import { Filters } from "@/features/home/components/Filters";
-import Pagination from "@/features/home/components/Pagination";
+import { Filters } from "@/features/home/components/filters";
+import { Pagination } from "@/features/home/components/pagination";
 
 export default async function Home({
   searchParams,
@@ -15,7 +15,7 @@ export default async function Home({
   const { characters, totalPages } = await useGetCharacters(params);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen grid-bg">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <Filters />

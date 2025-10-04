@@ -21,8 +21,6 @@ export const CharacterSkillOrb = ({ base, value }: CharacterSkillOrbProps) => {
     return `/assets/orbs/${base}/${icon}.webp`;
   };
 
-  console.log("color:", base);
-
   return (
     <div className="flex items-center gap-2">
       <div className="relative">
