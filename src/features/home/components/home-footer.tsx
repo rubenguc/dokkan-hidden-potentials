@@ -2,7 +2,7 @@ import { Github, Youtube } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t  bg-[#082c09] border-green-400 bottom-0">
+    <footer className="border-t  bg-[#082c09] border-green-400 bottom-0 relative z-10">
       <div className="container mx-auto px-4 py-6 flex justify-center gap-10">
         <a
           href="https://github.com/rubenguc/dokkan-hidden-potentials"

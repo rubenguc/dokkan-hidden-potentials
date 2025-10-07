@@ -10,7 +10,7 @@ interface CharacterHiddenProps {
 
 export function CharacterCard({ character }: CharacterHiddenProps) {
   return (
-    <Card className="px-3 py-3 gap-3 bg-[#082c09] border-green-400">
+    <Card className="px-3 py-3 gap-3 bg-[#082c09] border-green-400 relative z-10">
       <div className="flex items-center py-2 flex-6/12">
         <CharacterImage
           id={character.id}

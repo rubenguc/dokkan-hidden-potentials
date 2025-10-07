@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
+import { useDebounce } from "react-use";
 
 export function Filters() {
   const router = useRouter();
@@ -49,14 +50,22 @@ export function Filters() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.class, form.category, form.rarity]);
 
+  const [, cancel] = useDebounce(
+    () => {
+      handleSearch();
+    },
+    1000,
+    [form.name],
+  );
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
       }}
-      className="flex flex-wrap  gap-4 items-center py-4 px-2 mb-4 bg-[#082c09] border-green-400 border rounded-lg"
+      className="flex flex-wrap flex-col lg:flex-row  gap-4 items-center p-4 mb-4 bg-[#082c09] border-green-400 border rounded-lg z-10 relative"
     >
-      <div className="flex-1 relative">
+      <div className="flex-1 relative w-full">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
 
         <Input
@@ -64,7 +73,7 @@ export function Filters() {
           placeholder="Search by name"
           value={form.name}
           onChange={({ target: { value } }) => onFormChange("name", value)}
-          className="pl-10 bg-secondary/30 border-border placeholder:text-slate-300"
+          className="pl-10 bg-secondary/30 border-border placeholder:text-slate-300 text-white"
         />
       </div>
 
@@ -73,7 +82,7 @@ export function Filters() {
         value={form.class}
         onValueChange={(value) => onFormChange("class", value)}
       >
-        <SelectTrigger>
+        <SelectTrigger className="w-full lg:w-fit">
           <SelectValue placeholder="Select class" className="" />
         </SelectTrigger>
         <SelectContent className="bg-[#082c09] border-green-400 text-white">
@@ -91,7 +100,7 @@ export function Filters() {
         value={form.category}
         onValueChange={(value) => onFormChange("category", value)}
       >
-        <SelectTrigger>
+        <SelectTrigger className="w-full lg:w-fit">
           <SelectValue placeholder="Select category" />
         </SelectTrigger>
         <SelectContent className="bg-[#082c09] border-green-400 text-white">
@@ -109,7 +118,7 @@ export function Filters() {
         value={form.rarity}
         onValueChange={(value) => onFormChange("rarity", value)}
       >
-        <SelectTrigger>
+        <SelectTrigger className="w-full lg:w-fit">
           <SelectValue placeholder="Select rarity" />
         </SelectTrigger>
         <SelectContent className="bg-[#082c09] border-green-400 text-white">

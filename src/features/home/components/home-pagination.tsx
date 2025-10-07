@@ -26,7 +26,7 @@ export function Pagination({
   if (totalPages === 0) return null;
 
   return (
-    <div className="flex justify-center mt-10 gap-2 items-center">
+    <div className="flex justify-center mt-10 gap-2 items-center relative z-10">
       <Button
         variant="outline"
         size="icon"

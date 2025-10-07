@@ -15,9 +15,10 @@ export default async function Home({
   const { characters, totalPages } = await useGetCharacters(params);
 
   return (
-    <div className="min-h-screen grid-bg">
+    <div className="h-dvh relative flex flex-col">
+      <div className="absolute inset-0 z-0 grid-bg" />
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 flex-1">
         <Filters />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {characters.map((character) => (
