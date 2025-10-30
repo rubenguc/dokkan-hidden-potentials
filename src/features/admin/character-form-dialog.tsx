@@ -77,7 +77,7 @@ export function CharacterFormDialog({
       if (isCreation) {
         promise = axios.post("/api/characters", data);
       } else {
-        promise = axios.put("/api/characters", data);
+        promise = axios.put("/api/characters", { ...data, id: values!.id });
       }
 
       await toast.promise(promise, {

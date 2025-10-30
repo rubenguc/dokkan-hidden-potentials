@@ -1,11 +1,11 @@
-import { CATEGORY, CLASS, RARITY } from "@/constants";
+import { type NextRequest, NextResponse } from "next/server";
+import type { CATEGORY, CLASS, RARITY } from "@/constants";
 import { Character } from "@/features/characters/schema/character-schema";
 import { getCardImage } from "@/features/characters/services/character-services";
 import { connectToDatabase } from "@/features/db/db";
-import { Character as ICharacter } from "@/interfaces";
+import type { Character as ICharacter } from "@/interfaces";
 import { getClassAndCategory, getRarity } from "@/utils/hidden-utils";
 import { deleteImage, uploadImage } from "@/utils/storage";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   await connectToDatabase();
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
       totalCharacters,
     });
   } catch (error) {
-    // console.log({ error });
+    console.log(error);
     return NextResponse.json(
       { message: "Error fetching characters" },
       { status: 500 },
@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       status: 201,
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ message: "Error post" }, { status: 500 });
   }
 }
@@ -108,7 +109,7 @@ export async function PUT(req: NextRequest) {
 
     const { hiddens, orbs, json, id } = await req.json();
 
-    const body: any = {
+    let body: any = {
       hiddens,
       orbs,
     };
@@ -124,8 +125,9 @@ export async function PUT(req: NextRequest) {
         character.card.open_at;
 
       const newId = character.card.id;
+      const rarity = getRarity(character.card.rarity);
 
-      const cardIdForImage = body.rarity === "SSR" ? newId : Number(newId) - 1;
+      const cardIdForImage = rarity === "SSR" ? newId : Number(newId) - 1;
 
       const image = await getCardImage(cardIdForImage);
 
@@ -138,23 +140,25 @@ export async function PUT(req: NextRequest) {
         fileName: newId + ".webp",
       });
 
-      body.hasEZA = hasEZA;
-      body.hasSEZA = hasSEZA;
-      body.last_awakening = lastAwaken;
-      body.id = newId;
-      body.image = image;
+      body = {
+        hiddens,
+        orbs,
+        hasEZA,
+        hasSEZA,
+        last_awakening: lastAwaken,
+        id: newId,
+        image,
+      };
     }
 
     const result = await Character.findOneAndUpdate(
-      {
-        id,
-      },
+      { id },
       {
         $set: body,
       },
     );
 
-    if (result.modifiedCount === 0) {
+    if (!result) {
       return NextResponse.json({ message: "not found" }, { status: 500 });
     }
 
@@ -165,6 +169,7 @@ export async function PUT(req: NextRequest) {
       },
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ message: "Error post" }, { status: 500 });
   }
 }
