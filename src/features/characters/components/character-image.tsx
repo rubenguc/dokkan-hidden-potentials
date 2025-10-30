@@ -39,7 +39,7 @@ export function CharacterImage({
       />
 
       <img
-        className="absolute -top-[6px] left-0 w-full"
+        className="absolute -top-[3.7px] left-0 w-full"
         src={`${IMAGE_URL}/${id}.webp`}
         alt="image"
       />
